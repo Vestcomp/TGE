@@ -1,0 +1,287 @@
+{
+  "contractName": "MigrationAgent",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "migrateFrom",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "pragma solidity ^0.5.2;\n\n/// @title Migration Agent interface\ncontract MigrationAgent {\n\n    function migrateFrom(address _from, uint256 _value) public;\n}",
+  "sourcePath": "/home/bogdan/Ethereum/Projects/TGE/Token/contracts/MigrationAgent.sol",
+  "ast": {
+    "absolutePath": "/home/bogdan/Ethereum/Projects/TGE/Token/contracts/MigrationAgent.sol",
+    "exportedSymbols": {
+      "MigrationAgent": [
+        777
+      ]
+    },
+    "id": 778,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 769,
+        "literals": [
+          "solidity",
+          "^",
+          "0.5",
+          ".2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:1"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": "@title Migration Agent interface",
+        "fullyImplemented": false,
+        "id": 777,
+        "linearizedBaseContracts": [
+          777
+        ],
+        "name": "MigrationAgent",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": null,
+            "documentation": null,
+            "id": 776,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "migrateFrom",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 774,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 771,
+                  "name": "_from",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 776,
+                  "src": "114:13:1",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 770,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "114:7:1",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 773,
+                  "name": "_value",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 776,
+                  "src": "129:14:1",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 772,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "129:7:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "113:31:1"
+            },
+            "returnParameters": {
+              "id": 775,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "151:0:1"
+            },
+            "scope": 777,
+            "src": "93:59:1",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 778,
+        "src": "62:92:1"
+      }
+    ],
+    "src": "0:154:1"
+  },
+  "legacyAST": {
+    "absolutePath": "/home/bogdan/Ethereum/Projects/TGE/Token/contracts/MigrationAgent.sol",
+    "exportedSymbols": {
+      "MigrationAgent": [
+        777
+      ]
+    },
+    "id": 778,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 769,
+        "literals": [
+          "solidity",
+          "^",
+          "0.5",
+          ".2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:1"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": "@title Migration Agent interface",
+        "fullyImplemented": false,
+        "id": 777,
+        "linearizedBaseContracts": [
+          777
+        ],
+        "name": "MigrationAgent",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": null,
+            "documentation": null,
+            "id": 776,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "migrateFrom",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 774,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 771,
+                  "name": "_from",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 776,
+                  "src": "114:13:1",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 770,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "114:7:1",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 773,
+                  "name": "_value",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 776,
+                  "src": "129:14:1",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 772,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "129:7:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "113:31:1"
+            },
+            "returnParameters": {
+              "id": 775,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "151:0:1"
+            },
+            "scope": 777,
+            "src": "93:59:1",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 778,
+        "src": "62:92:1"
+      }
+    ],
+    "src": "0:154:1"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.5.2+commit.1df8f40c.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.0.1",
+  "updatedAt": "2019-02-11T21:25:49.437Z",
+  "devdoc": {
+    "methods": {},
+    "title": "Migration Agent interface"
+  },
+  "userdoc": {
+    "methods": {}
+  }
+}
