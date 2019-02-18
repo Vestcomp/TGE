@@ -8,7 +8,7 @@
 6. With ability to be migrated in the future
 
 **Token Name**
-* "AuditChain"
+* "Auditchain"
 
 **Token Ticker**
 * "AUDT"
