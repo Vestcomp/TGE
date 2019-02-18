@@ -34,7 +34,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole {
     /**
      * @dev Constructor that gives msg.sender all of existing tokens.
      */
-    constructor () public ERC20Detailed("AuditChain", "AUDT", DECIMALS)  {      
+    constructor () public ERC20Detailed("Auditchain", "AUDT", DECIMALS)  {      
         _mint(msg.sender, INITIAL_SUPPLY + ONE_YEAR_SUPPLY);     
         mintedYears[now.getYear()] = true;
     }
