@@ -12,7 +12,7 @@ import "./Blacklist.sol";
 
 /**
  * @title Token
- * @dev Burnable, Mintabble, Ownable, and Pausable
+ * @dev Burnable, Mintabble, Ownable, and Pausable, with Blacklist
  */
 contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable, BlackList {
 
@@ -70,13 +70,10 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable
     }
 
     /// @notice Migrate tokens to the new token contract.
-    /// @dev Required state: Operational Migration
     /// @param _value The amount of token to be migrated
-    function migrate(uint256 _value) external whenNotPaused() {
-        // Abort if not in Operational Migration state.   
+    function migrate(uint256 _value) external whenNotPaused() {         
 
-        require(migrationAgent != address(0), "Enter migration agent address");
-        
+        require(migrationAgent != address(0), "Enter migration agent address");        
         // Validate input value.
         require(_value > 0, "Amount of tokens is required");
         require(_value <= balanceOf(msg.sender), "You entered more tokens than available");
@@ -105,7 +102,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable
         emit BlacklistedFundsBurned(_blacklistedUser, dirtyFunds);
     }
 
-    /// @notice Overwrite parent implementation to add blacklisted modifier
+    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
     function transfer(address to, uint256 value) public 
                                                     isNotBlacklisted(msg.sender, to) 
                                                     notSelf(to) 
