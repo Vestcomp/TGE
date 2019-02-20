@@ -23,7 +23,7 @@ var BigNumber = require('big-number');
 
 
 
-contract("ERC20 Audit Chain Token", (accounts) => {
+contract("ERC20 Auditchain Token", (accounts) => {
     let owner;
     let holder1;
     let holder2;
@@ -315,24 +315,24 @@ contract("ERC20 Audit Chain Token", (accounts) => {
                 }
             });
     
-            it('transfer: should fail when transferring to user who is blacklisted', async () => {
+            it('transfer: should fail when transferring to user who is locked', async () => {
     
-                await token.addBlackList(holder1, {from:owner})
+                await token.addLock(holder1, {from:owner})
     
                 try {
     
                     await token.transfer(holder1, transferFunds, {
-                        from: owner
+                        from: holder2
                     });
     
-                } catch (error) {              
+                } catch (error) {                               
                     ensureException(error);
                 }
             });
     
-            it('transfer: should fail when transferring from user who is blacklisted', async () => {
+            it('transfer: should fail when transferring from user who is locked', async () => {
     
-                await token.addBlackList(holder1, {from:owner})
+                await token.addLock(holder1, {from:owner})
     
                 try {
     
@@ -344,6 +344,24 @@ contract("ERC20 Audit Chain Token", (accounts) => {
                     ensureException(error);
                 }
             });
+
+
+            it('transfer: should transfer tokens to user who is locked from owner', async () => {
+
+                await token.addLock(holder1, {from:owner})
+
+                await token.transfer(holder2, transferFunds, {
+                    from: owner
+                });
+
+                let balanceHolder1 = await token
+                    .balanceOf
+                    .call(holder1)
+                
+                assert.strictEqual(balanceHolder1.toNumber(), transferFunds);               
+            })
+
+            
     });
 
 
@@ -493,9 +511,9 @@ contract("ERC20 Audit Chain Token", (accounts) => {
             });
     
     
-            it('approve: should fail when approval comes from the user who is blacklisted', async () => {
+            it('approve: should fail when approval comes from the user who is locked', async () => {
     
-                await token.addBlackList(holder1, {from:owner})
+                await token.addLock(holder1, {from:owner})
     
                 try {
     
@@ -508,9 +526,9 @@ contract("ERC20 Audit Chain Token", (accounts) => {
                 }
             });
     
-            it('approve: should fail when approving user who is blacklisted', async () => {
+            it('approve: should fail when approving user who is locked', async () => {
     
-                await token.addBlackList(holder1, {from:owner})
+                await token.addLock(holder1, {from:owner})
     
                 try {
     
@@ -576,13 +594,13 @@ contract("ERC20 Audit Chain Token", (accounts) => {
                 }
             });
 
-            it('transferFrom: should fail when transferring to user who is blacklisted', async () => {
+            it('transferFrom: should fail when transferring to user who is locked', async () => {
 
                 await token.approve(holder2, transferFunds, {
                     from: holder1
                 });
 
-                await token.addBlackList(holder3, {from:owner})
+                await token.addLock(holder3, {from:owner})
     
                 try {
     
@@ -595,13 +613,13 @@ contract("ERC20 Audit Chain Token", (accounts) => {
                 }
             });
     
-            it('transferFrom: should fail when transferring from user who is blacklisted', async () => {
+            it('transferFrom: should fail when transferring from user who is locked', async () => {
     
                 await token.approve(holder2, transferFunds, {
                     from: holder1
                 });
 
-                await token.addBlackList(holder1, {from:owner})
+                await token.addLock(holder1, {from:owner})
     
                 try {
     
@@ -715,40 +733,40 @@ contract("ERC20 Audit Chain Token", (accounts) => {
 
     })
 
-    describe("Blacklist", async () => {
+    describe("Locked", async () => {
 
-        it('addBlackList: It should add user to blacklist', async () => {
+        it('addLock: It should lock user ', async () => {
 
-            await token.addBlackList(holder1, {
+            await token.addLock(holder1, {
                 from: owner
             });
 
-            let result = await token.isBlacklisted(holder1, {
+            let result = await token.isLocked(holder1, {
                 from: owner
             });
             assert.isTrue(result);
         })
 
-        it('removeBlackList: It should remove user from blacklist', async () => {
+        it('removeLock: It should unlock user', async () => {
 
-            await token.addBlackList(holder1, {
+            await token.addLock(holder1, {
                 from: owner
             });
 
-            await token.removeBlackList(holder1, {
+            await token.removeLock(holder1, {
                 from: owner
             });
 
-            let result = await token.isBlacklisted(holder1, {
+            let result = await token.isLocked(holder1, {
                 from: owner
             });
             assert.isFalse(result);
         })
 
 
-        it('addBlackList: It should fail adding user to blacklist by unauthorized user', async () => {
+        it('addLock: It should fail when locking user by unauthorized user', async () => {
             try {
-                await token.addBlackList(holder1, {
+                await token.addLock(holder1, {
                     from: holder2
                 });
             } catch (error) {
@@ -756,57 +774,7 @@ contract("ERC20 Audit Chain Token", (accounts) => {
             }
         })
 
-        it('burnBlacklistedFunds: It should burn funds of blacklisted user', async () => {
-
-            await token.addBlackList(holder1, {
-                from: owner
-            });
-
-            await token.burnBlacklistedFunds(holder1, {
-                from: owner
-            })
-            let result = await token.balanceOf(holder1, {
-                from: owner
-            })
-
-
-            assert.equal(result.toString(), 0);
-        })
-
-        it('burnBlacklistedFunds: It should fail when trying to burn funds on not blacklisted user', async () => {
-
-            let result = await token.balanceOf(holder1, {
-                from: owner
-            })
-
-            try {
-
-                await token.burnBlacklistedFunds(holder1, {
-                    from: owner
-                })
-
-            } catch (error) {
-                ensureException(error);
-            }
-        })
-
-        it('burnBlacklistedFunds: It should fail when trying to burn funds by unauthorized user', async () => {
-
-
-            await token.addBlackList(holder1, {
-                from: owner
-            });
-
-            try {
-
-                await token.burnBlacklistedFunds(holder1, {
-                    from: holder2
-                })
-
-            } catch (error) {
-                ensureException(error);
-            }
-        })
+    
     })
 
 
@@ -996,51 +964,32 @@ contract("ERC20 Audit Chain Token", (accounts) => {
             assert.equal(event1.args.value, transferFunds);
         })
 
-        it('should log AddedBlackList after addBlackList()', async () => {
+        it('should log AddedLock after addLock()', async () => {
 
-            let result = await token.addBlackList(holder1, {
+            let result = await token.addLock(holder1, {
                 from: owner
             });
 
             assert.lengthOf(result.logs, 1);
             let event = result.logs[0];
-            assert.equal(event.event, 'AddedBlackList');
+            assert.equal(event.event, 'AddedLock');
             assert.equal(event.args.user, holder1);
         })
 
-        it('should log RemovedBlackList after removeBlackList()', async () => {
+        it('should log Removedlock after removeLock()', async () => {
 
-            await token.addBlackList(holder1, {
+            await token.addLock(holder1, {
                 from: owner
             });
 
-            let result = await token.removeBlackList(holder1, {
+            let result = await token.removeLock(holder1, {
                 from: owner
             });
 
             assert.lengthOf(result.logs, 1);
             let event = result.logs[0];
-            assert.equal(event.event, 'RemovedBlackList');
+            assert.equal(event.event, 'RemovedLock');
             assert.equal(event.args.user, holder1);
-        })
-
-
-        it('should log BlacklistedFundsBurned after burnBlacklistedFunds()', async () => {
-
-            await token.addBlackList(holder1, {
-                from: owner
-            });
-
-            let result = await token.burnBlacklistedFunds(holder1, {
-                from: owner
-            });
-
-
-            assert.lengthOf(result.logs, 2);
-            let event = result.logs[1];
-            assert.equal(event.event, 'BlacklistedFundsBurned');
-            assert.equal(event.args.from, holder1);
-            assert.equal(event.args.value, transferFunds);
         })
     });
 
