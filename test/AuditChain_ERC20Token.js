@@ -161,6 +161,7 @@ contract("ERC20 Audit Chain Token", (accounts) => {
                 from: owner
             });
 
+           
             let tokenSupply = await token.totalSupply();
 
             let tokensToCompare = new BigNumber(initialSuppy.toString()).add(oneYearSupply.toString());
@@ -176,6 +177,28 @@ contract("ERC20 Audit Chain Token", (accounts) => {
             tokenSupply = await token.totalSupply();
             tokensToCompare = new BigNumber(initialSuppy.toString()).add(oneYearSupply.toString()).add(oneYearSupply.toString());          
             assert.equal(tokenSupply.toString(), tokensToCompare.toString());
+        })
+
+        it('mint: should mint 12500000 amount of tokens and it should show in mint agent balance', async () => {
+
+            let yearlyBalance = new BigNumber(12500000).mult(1e18);
+
+            token = await TOKEN.new();
+
+            await token.setMintContract(holder3, {
+                from: owner
+            });
+
+            increaseTime(31708800); // move forward by one year
+
+            await token.mint({
+                from: owner
+            });
+
+            let mintedBalance = await token.balanceOf(holder3);
+
+            assert.equal(mintedBalance.toString(), yearlyBalance.toString() );        
+
         })
 
 
@@ -900,7 +923,7 @@ contract("ERC20 Audit Chain Token", (accounts) => {
 
             let event = result.logs[0];
             assert.equal(event.event, 'Transfer');
-            assert.equal(event.args.to, owner);
+            assert.equal(event.args.to, holder3);
             assert.equal(event.args.from, "0x0000000000000000000000000000000000000000");
             assert.equal(event.args.value.toString(), oneYearSupply.toString());
         })

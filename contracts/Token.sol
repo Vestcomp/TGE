@@ -44,7 +44,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable
      * @dev Constructor that gives msg.sender all of existing tokens.
      */
     constructor () public ERC20Detailed("Auditchain", "AUDT", DECIMALS)  {      
-        _mint(msg.sender, INITIAL_SUPPLY + ONE_YEAR_SUPPLY);     
+        mint(msg.sender, INITIAL_SUPPLY + ONE_YEAR_SUPPLY);     
         mintedYears[now.getYear()] = true;
     }
      
@@ -55,7 +55,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable
         require(mintAgent != address(0), "Mint agent address can't be 0");
         require (!mintedYears[now.getYear()], "Tokens have been already minted for this year.");
 
-        _mint(owner(), ONE_YEAR_SUPPLY);
+        mint(mintAgent, ONE_YEAR_SUPPLY);
         mintedYears[now.getYear()] = true;
 
         return true;

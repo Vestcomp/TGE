@@ -6,6 +6,8 @@
 4. No Cap
 5. Issuing yearly 12,500,000 new tokens to governance contract
 6. With ability to be migrated in the future
+7. With ability to blacklist users and remove blacklist status and burn tokens of blacklisted user
+8. With ability to refuse to accept tokens sent to this contract by mistake 
 
 **Token Name**
 * "Auditchain"
