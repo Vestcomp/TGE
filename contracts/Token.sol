@@ -27,13 +27,12 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable
 
     mapping (uint => bool) public mintedYears;
 
-   
     event Migrate(address indexed from, address indexed to, uint256 value);
     event MintAgentSet(address indexed mintAgent);
     event MigrationAgentSet(address indexed migrationAgent);
     event BlacklistedFundsBurned(address indexed from, uint256 value);
 
-        /// @dev prevent accidental sending of tokens to this token contract
+    /// @dev prevent accidental sending of tokens to this token contract
     /// @param _self - address of this contract
     modifier notSelf(address _self) {
         require(_self != address(this), "You are trying to send tokens to token contract");
@@ -50,7 +49,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable
      
      /// @dev Function to mint tokens
      /// @return A boolean that indicates if the operation was successful.
-    function mint() public onlyMinter returns (bool) {
+    function mint() public returns (bool) {
 
         require(mintAgent != address(0), "Mint agent address can't be 0");
         require (!mintedYears[now.getYear()], "Tokens have been already minted for this year.");
