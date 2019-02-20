@@ -4,16 +4,17 @@ import "../../../openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 import "../../../openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 import "../../../openzeppelin-solidity/contracts/token/ERC20/ERC20Burnable.sol";
 import "../../../openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "../../../openzeppelin-solidity/contracts/access/roles/MinterRole.sol";
+import "../../../openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
 import "./MigrationAgent.sol";
 import "./DateTime.sol";
+import "./Blacklist.sol";
 
 
 /**
  * @title Token
  * @dev Burnable, Mintabble, Ownable, and Pausable
  */
-contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole {
+contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable, BlackList {
 
 
     using DateTime for uint256;
@@ -26,10 +27,18 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole {
 
     mapping (uint => bool) public mintedYears;
 
-    event RefundTokens(address indexed user, uint256 amount);
+   
     event Migrate(address indexed from, address indexed to, uint256 value);
     event MintAgentSet(address indexed mintAgent);
     event MigrationAgentSet(address indexed migrationAgent);
+    event BlacklistedFundsBurned(address indexed from, uint256 value);
+
+        /// @dev prevent accidental sending of tokens to this token contract
+    /// @param _self - address of this contract
+    modifier notSelf(address _self) {
+        require(_self != address(this), "You are trying to send tokens to token contract");
+        _;
+    }
 
     /**
      * @dev Constructor that gives msg.sender all of existing tokens.
@@ -87,5 +96,55 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole {
         migrationAgent = _agent;
         emit MigrationAgentSet(_agent);
     }
+
+    /// @notice burns funds of blacklisted user
+    /// @param _blacklistedUser The address of user who is blacklisted
+    function burnBlacklistedFunds (address _blacklistedUser) public onlyOwner {
+        require(blacklist[_blacklistedUser], "These user is not blacklisted");
+        uint dirtyFunds = balanceOf(_blacklistedUser);
+        _burn(_blacklistedUser, dirtyFunds);        
+        emit BlacklistedFundsBurned(_blacklistedUser, dirtyFunds);
+    }
+
+    /// @notice Overwrite parent implementation to add blacklisted modifier
+    function transfer(address to, uint256 value) public 
+                                                    isNotBlacklisted(msg.sender, to) 
+                                                    notSelf(to) 
+                                                    returns (bool) {
+        return super.transfer(to, value);
+    }
+
+    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    function transferFrom(address from, address to, uint256 value) public 
+                                                                    isNotBlacklisted(from, to) 
+                                                                    notSelf(to) 
+                                                                    returns (bool) {
+        return super.transferFrom(from, to, value);
+    }
+
+    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    function approve(address spender, uint256 value) public 
+                                                        isNotBlacklisted(msg.sender, spender) 
+                                                        notSelf(spender) 
+                                                        returns (bool) {
+        return super.approve(spender, value);
+    }
+
+    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    function increaseAllowance(address spender, uint addedValue) public 
+                                                                isNotBlacklisted(msg.sender, spender) 
+                                                                notSelf(spender) 
+                                                                returns (bool success) {
+        return super.increaseAllowance(spender, addedValue);
+    }
+
+    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    function decreaseAllowance(address spender, uint subtractedValue) public 
+                                                                        isNotBlacklisted(msg.sender, spender) 
+                                                                        notSelf(spender) 
+                                                                        returns (bool success) {
+        return super.decreaseAllowance(spender, subtractedValue);
+    }
+    
     
 }
