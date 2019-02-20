@@ -578,6 +578,23 @@ contract MinterRole {
     }
 }
 
+/**
+ * @title ERC20Mintable
+ * @dev ERC20 minting logic
+ */
+contract ERC20Mintable is ERC20, MinterRole {
+    /**
+     * @dev Function to mint tokens
+     * @param to The address that will receive the minted tokens.
+     * @param value The amount of tokens to mint.
+     * @return A boolean that indicates if the operation was successful.
+     */
+    function mint(address to, uint256 value) public onlyMinter returns (bool) {
+        _mint(to, value);
+        return true;
+    }
+}
+
 /// @title Migration Agent interface
 contract MigrationAgent {
 
@@ -801,11 +818,56 @@ library DateTime {
     }
 }
 
+/// @title Locked
+/// @dev Smart contract to enable locking and unlocking of token holders. 
+contract Locked is Ownable {
+
+    mapping (address => bool) public lockedList;
+
+    event AddedLock(address user);
+    event RemovedLock(address user);
+
+
+    /// @dev terminate transaction if any of the participants is locked
+    /// @param _from - user initiating process
+    /// @param _to  - user involved in process
+    modifier isNotLocked(address _from, address _to) {
+
+        if (_from != owner()) {  // allow contract owner on sending tokens even if recipient is locked
+            require(!lockedList[_from], "User is locked");
+            require(!lockedList[_to], "User is locked");
+        }
+        _;
+    }
+
+    /// @dev check if user has been locked
+    /// @param _user - usr to check
+    /// @return true or false
+    function isLocked(address _user) public view returns (bool) {
+        return lockedList[_user];
+    }
+    
+    /// @dev add user to lock
+    /// @param _user to lock
+    function addLock (address _user) public onlyOwner {
+        lockedList[_user] = true;
+        emit AddedLock(_user);
+    }
+
+    /// @dev unlock user
+    /// @param _user - user to unlock
+    function removeLock (address _user) public onlyOwner {
+        lockedList[_user] = false;
+        emit RemovedLock(_user);
+    }
+
+}
+
 /**
  * @title Token
- * @dev Burnable, Mintabble, Ownable, and Pausable
+ * @dev Burnable, Mintabble, Ownable, Pausable, with Locking ability per user. 
  */
-contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole {
+contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable, Locked {
 
 
     using DateTime for uint256;
@@ -818,27 +880,34 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole {
 
     mapping (uint => bool) public mintedYears;
 
-    event RefundTokens(address indexed user, uint256 amount);
     event Migrate(address indexed from, address indexed to, uint256 value);
     event MintAgentSet(address indexed mintAgent);
     event MigrationAgentSet(address indexed migrationAgent);
+    event BlacklistedFundsBurned(address indexed from, uint256 value);
+
+    /// @dev prevent accidental sending of tokens to this token contract
+    /// @param _self - address of this contract
+    modifier notSelf(address _self) {
+        require(_self != address(this), "You are trying to send tokens to token contract");
+        _;
+    }
 
     /**
      * @dev Constructor that gives msg.sender all of existing tokens.
      */
-    constructor () public ERC20Detailed("AuditChain", "AUDT", DECIMALS)  {      
-        _mint(msg.sender, INITIAL_SUPPLY + ONE_YEAR_SUPPLY);     
+    constructor () public ERC20Detailed("Auditchain", "AUDT", DECIMALS)  {      
+        mint(msg.sender, INITIAL_SUPPLY + ONE_YEAR_SUPPLY);     
         mintedYears[now.getYear()] = true;
     }
      
      /// @dev Function to mint tokens
      /// @return A boolean that indicates if the operation was successful.
-    function mint() public onlyMinter returns (bool) {
+    function mint() public returns (bool) {
 
         require(mintAgent != address(0), "Mint agent address can't be 0");
         require (!mintedYears[now.getYear()], "Tokens have been already minted for this year.");
 
-        _mint(owner(), ONE_YEAR_SUPPLY);
+        mint(mintAgent, ONE_YEAR_SUPPLY);
         mintedYears[now.getYear()] = true;
 
         return true;
@@ -848,19 +917,16 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole {
     /// @param _mintAgent - address of the contract to set
     function setMintContract(address _mintAgent) external onlyOwner() {
 
-        require(_mintAgent != address(0) , "Mint agent address can't be 0");
+        require(_mintAgent != address(0), "Mint agent address can't be 0");
         mintAgent = _mintAgent;
         emit MintAgentSet(_mintAgent);
     }
 
     /// @notice Migrate tokens to the new token contract.
-    /// @dev Required state: Operational Migration
     /// @param _value The amount of token to be migrated
-    function migrate(uint256 _value) external whenNotPaused() {
-        // Abort if not in Operational Migration state.   
+    function migrate(uint256 _value) external whenNotPaused() {         
 
-        require(migrationAgent != address(0), "Enter migration agent address");
-        
+        require(migrationAgent != address(0), "Enter migration agent address");        
         // Validate input value.
         require(_value > 0, "Amount of tokens is required");
         require(_value <= balanceOf(msg.sender), "You entered more tokens than available");
@@ -879,5 +945,46 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole {
         migrationAgent = _agent;
         emit MigrationAgentSet(_agent);
     }
+
+    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    function transfer(address to, uint256 value) public 
+                                                    isNotLocked(msg.sender, to) 
+                                                    notSelf(to) 
+                                                    returns (bool) {
+        return super.transfer(to, value);
+    }
+
+    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    function transferFrom(address from, address to, uint256 value) public 
+                                                                    isNotLocked(from, to) 
+                                                                    notSelf(to) 
+                                                                    returns (bool) {
+        return super.transferFrom(from, to, value);
+    }
+
+    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    function approve(address spender, uint256 value) public 
+                                                        isNotLocked(msg.sender, spender) 
+                                                        notSelf(spender) 
+                                                        returns (bool) {
+        return super.approve(spender, value);
+    }
+
+    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    function increaseAllowance(address spender, uint addedValue) public 
+                                                                isNotLocked(msg.sender, spender) 
+                                                                notSelf(spender) 
+                                                                returns (bool success) {
+        return super.increaseAllowance(spender, addedValue);
+    }
+
+    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    function decreaseAllowance(address spender, uint subtractedValue) public 
+                                                                        isNotLocked(msg.sender, spender) 
+                                                                        notSelf(spender) 
+                                                                        returns (bool success) {
+        return super.decreaseAllowance(spender, subtractedValue);
+    }
+    
     
 }

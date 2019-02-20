@@ -12,7 +12,7 @@ import "./Locked.sol";
 
 /**
  * @title Token
- * @dev Burnable, Mintabble, Ownable, and Pausable, with Blacklist
+ * @dev Burnable, Mintabble, Ownable, Pausable, with Locking ability per user. 
  */
 contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable, Locked {
 
@@ -64,7 +64,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable
     /// @param _mintAgent - address of the contract to set
     function setMintContract(address _mintAgent) external onlyOwner() {
 
-        require(_mintAgent != address(0) , "Mint agent address can't be 0");
+        require(_mintAgent != address(0), "Mint agent address can't be 0");
         mintAgent = _mintAgent;
         emit MintAgentSet(_mintAgent);
     }
