@@ -37,7 +37,6 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         require(_self != address(this), "You are trying to send tokens to token contract");
         _;
     }
-
     
     /// @dev Constructor that gives msg.sender all of existing tokens and initiates token.  
     constructor () public ERC20Detailed("Auditchain", "AUDT", DECIMALS)  {      
@@ -99,7 +98,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         emit MigrationAgentSet(_agent);
     }
 
-    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    /// @notice Overwrite parent implementation to add locked verification and notSelf modifiers
     function transfer(address to, uint256 value) public 
                                                     isNotLocked(msg.sender, to) 
                                                     notSelf(to) 
@@ -107,7 +106,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         return super.transfer(to, value);
     }
 
-    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    /// @notice Overwrite parent implementation to add locked verification and notSelf modifiers
     function transferFrom(address from, address to, uint256 value) public 
                                                                     isNotLocked(from, to) 
                                                                     notSelf(to) 
@@ -115,7 +114,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         return super.transferFrom(from, to, value);
     }
 
-    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    /// @notice Overwrite parent implementation to add locked verification and notSelf modifiers
     function approve(address spender, uint256 value) public 
                                                         isNotLocked(msg.sender, spender) 
                                                         notSelf(spender) 
@@ -123,7 +122,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         return super.approve(spender, value);
     }
 
-    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    /// @notice Overwrite parent implementation to add locked verification and notSelf modifiers
     function increaseAllowance(address spender, uint addedValue) public 
                                                                 isNotLocked(msg.sender, spender) 
                                                                 notSelf(spender) 
@@ -131,7 +130,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         return super.increaseAllowance(spender, addedValue);
     }
 
-    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    /// @notice Overwrite parent implementation to add locked verification and notSelf modifiers
     function decreaseAllowance(address spender, uint subtractedValue) public 
                                                                         isNotLocked(msg.sender, spender) 
                                                                         notSelf(spender) 
