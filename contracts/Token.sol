@@ -38,22 +38,23 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         _;
     }
 
-    /**
-     * @dev Constructor that gives msg.sender all of existing tokens.
-     */
+    
+    /// @dev Constructor that gives msg.sender all of existing tokens and initiates token.  
     constructor () public ERC20Detailed("Auditchain", "AUDT", DECIMALS)  {      
         _mint(msg.sender, INITIAL_SUPPLY + ONE_YEAR_SUPPLY);     
         mintedYears[returnYear()] = true;
     }
      
+    /// @dev Function to determine year based on the current time
+    /// There is no need to deal with leap years as only once per year mining can be run and
+    /// one day is meaningless
     function returnYear() internal view returns (uint) {
 
         uint year = ORIGIN_YEAR + (block.timestamp / YEAR_IN_SECONDS);
         return year;
     }
     
-
-     /// @dev Function to mint tokens
+     /// @dev Function to mint tokens once per year
      /// @return A boolean that indicates if the operation was successful.
     function mint() public onlyMinter returns (bool) {
 
@@ -79,8 +80,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
     /// @param _value The amount of token to be migrated
     function migrate(uint256 _value) external whenNotPaused() {         
 
-        require(migrationAgent != address(0), "Enter migration agent address");        
-        // Validate input value.
+        require(migrationAgent != address(0), "Enter migration agent address");                
         require(_value > 0, "Amount of tokens is required");
         require(_value <= balanceOf(msg.sender), "You entered more tokens than available");
        
@@ -94,7 +94,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
     /// @param _agent The address of the MigrationAgent contract
     function setMigrationAgent(address _agent) external onlyOwner() {       
 
-        require(migrationAgent == address(0), "Migration agent can't be 0");       
+        require(_agent != address(0), "Migration agent can't be 0");       
         migrationAgent = _agent;
         emit MigrationAgentSet(_agent);
     }
