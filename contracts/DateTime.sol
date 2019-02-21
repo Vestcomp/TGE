@@ -2,7 +2,7 @@ pragma solidity ^0.5.2;
 
 //https://github.com/pipermerriam/ethereum-datetime
 
-library DateTime {
+contract DateTime {
         /*
          *  Date and Time utilities for ethereum contracts
          *

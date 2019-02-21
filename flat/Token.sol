@@ -603,7 +603,7 @@ contract MigrationAgent {
 
 //https://github.com/pipermerriam/ethereum-datetime
 
-library DateTime {
+contract DateTime {
         /*
          *  Date and Time utilities for ethereum contracts
          *
@@ -867,10 +867,10 @@ contract Locked is Ownable {
  * @title Token
  * @dev Burnable, Mintabble, Ownable, Pausable, with Locking ability per user. 
  */
-contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable, Locked {
+contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable, Locked, DateTime {
 
 
-    using DateTime for uint256;
+    //using DateTime for uint256;
     uint8 public constant DECIMALS = 18;
     uint256 public constant INITIAL_SUPPLY = 250000000 * (10 ** uint256(DECIMALS));   
     uint256 public constant ONE_YEAR_SUPPLY = 12500000 * (10 ** uint256(DECIMALS));   
@@ -897,7 +897,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable
      */
     constructor () public ERC20Detailed("Auditchain", "AUDT", DECIMALS)  {      
         mint(msg.sender, INITIAL_SUPPLY + ONE_YEAR_SUPPLY);     
-        mintedYears[now.getYear()] = true;
+       mintedYears[getYear(now)] = true;
     }
      
      /// @dev Function to mint tokens
@@ -905,10 +905,10 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable
     function mint() public returns (bool) {
 
         require(mintAgent != address(0), "Mint agent address can't be 0");
-        require (!mintedYears[now.getYear()], "Tokens have been already minted for this year.");
+        require (!mintedYears[getYear(now)], "Tokens have been already minted for this year.");
 
         mint(mintAgent, ONE_YEAR_SUPPLY);
-        mintedYears[now.getYear()] = true;
+        mintedYears[getYear(now)] = true;
 
         return true;
     }
