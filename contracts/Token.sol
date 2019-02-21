@@ -6,7 +6,6 @@ import "../../../openzeppelin-solidity/contracts/token/ERC20/ERC20Burnable.sol";
 import "../../../openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "../../../openzeppelin-solidity/contracts/access/roles/MinterRole.sol";
 import "./MigrationAgent.sol";
-import "./DateTime.sol";
 import "./Locked.sol";
 
 
@@ -14,7 +13,7 @@ import "./Locked.sol";
  * @title Token
  * @dev Burnable, Mintabble, Ownable, Pausable, with Locking ability per user. 
  */
-contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, Locked, DateTime {
+contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, Locked {
 
     uint8 public constant DECIMALS = 18;
     uint256 public constant INITIAL_SUPPLY = 250000000 * (10 ** uint256(DECIMALS));   
@@ -23,13 +22,15 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
     uint256 public totalMigrated;
     address public mintAgent;    
 
+    uint16 constant ORIGIN_YEAR = 1970;
+    uint constant YEAR_IN_SECONDS = 31622400;
+
     mapping (uint => bool) public mintedYears;
 
     event Migrate(address indexed from, address indexed to, uint256 value);
     event MintAgentSet(address indexed mintAgent);
     event MigrationAgentSet(address indexed migrationAgent);
-    event BlacklistedFundsBurned(address indexed from, uint256 value);
-
+    
     /// @dev prevent accidental sending of tokens to this token contract
     /// @param _self - address of this contract
     modifier notSelf(address _self) {
@@ -42,18 +43,25 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
      */
     constructor () public ERC20Detailed("Auditchain", "AUDT", DECIMALS)  {      
         _mint(msg.sender, INITIAL_SUPPLY + ONE_YEAR_SUPPLY);     
-        mintedYears[getYear(now)] = true;
+        mintedYears[returnYear()] = true;
     }
      
+    function returnYear() internal view returns (uint) {
+
+        uint year = ORIGIN_YEAR + (block.timestamp / YEAR_IN_SECONDS);
+        return year;
+    }
+    
+
      /// @dev Function to mint tokens
      /// @return A boolean that indicates if the operation was successful.
     function mint() public onlyMinter returns (bool) {
 
         require(mintAgent != address(0), "Mint agent address can't be 0");
-        require (!mintedYears[getYear(now)], "Tokens have been already minted for this year.");
+        require (!mintedYears[returnYear()], "Tokens have been already minted for this year.");
 
         _mint(mintAgent, ONE_YEAR_SUPPLY);
-        mintedYears[getYear(now)] = true;
+        mintedYears[returnYear()] = true;
 
         return true;
     }

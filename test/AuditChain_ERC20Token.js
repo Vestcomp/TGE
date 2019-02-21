@@ -65,7 +65,7 @@ contract("ERC20 Auditchain Token", (accounts) => {
             assert.equal(tokenSymbol.toString(), "AUDT");
 
             let tokenSupply = await token.totalSupply();
-            assert.equal(tokenSupply.toString(), initialSuppy.toString());
+            assert.equal(tokenSupply.toString(), initialSuppy.toString());           
         });
     });
 
@@ -176,7 +176,7 @@ contract("ERC20 Auditchain Token", (accounts) => {
 
             tokenSupply = await token.totalSupply();
             tokensToCompare = new BigNumber(initialSuppy.toString()).add(oneYearSupply.toString()).add(oneYearSupply.toString());          
-            assert.equal(tokenSupply.toString(), tokensToCompare.toString());
+            assert.equal(tokenSupply.toString(), tokensToCompare.toString());            
         })
 
         it('mint: should mint 12500000 amount of tokens and it should show in mint agent balance', async () => {
@@ -197,7 +197,7 @@ contract("ERC20 Auditchain Token", (accounts) => {
 
             let mintedBalance = await token.balanceOf(holder3);
 
-            assert.equal(mintedBalance.toString(), yearlyBalance.toString() );        
+            assert.equal(mintedBalance.toString(), yearlyBalance.toString() );                  
 
         })
 
@@ -224,6 +224,7 @@ contract("ERC20 Auditchain Token", (accounts) => {
             } catch (error) {              
                 ensureException(error);
             }
+           
         })
 
 
@@ -252,7 +253,8 @@ contract("ERC20 Auditchain Token", (accounts) => {
 
             } catch (error) {              
                 ensureException(error);
-            }
+            }          
+
         })       
 
     })
@@ -894,6 +896,7 @@ contract("ERC20 Auditchain Token", (accounts) => {
             assert.equal(event.args.to, holder3);
             assert.equal(event.args.from, "0x0000000000000000000000000000000000000000");
             assert.equal(event.args.value.toString(), oneYearSupply.toString());
+           
         })
 
         it('should log Paused after pause()', async () => {

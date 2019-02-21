@@ -23,5 +23,5 @@
 
 **Example of verified contract can be seen on ropsten testnet**
 
-https://ropsten.etherscan.io/address/0x627d68e6d1405ed86348b955a8176c9a2d94a523
+https://ropsten.etherscan.io/address/0x2077b2e94fbb0b408df4b403f74ea954a7a935ee
   
