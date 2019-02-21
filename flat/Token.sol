@@ -578,23 +578,6 @@ contract MinterRole {
     }
 }
 
-/**
- * @title ERC20Mintable
- * @dev ERC20 minting logic
- */
-contract ERC20Mintable is ERC20, MinterRole {
-    /**
-     * @dev Function to mint tokens
-     * @param to The address that will receive the minted tokens.
-     * @param value The amount of tokens to mint.
-     * @return A boolean that indicates if the operation was successful.
-     */
-    function mint(address to, uint256 value) public onlyMinter returns (bool) {
-        _mint(to, value);
-        return true;
-    }
-}
-
 /// @title Migration Agent interface
 contract MigrationAgent {
 
@@ -867,10 +850,8 @@ contract Locked is Ownable {
  * @title Token
  * @dev Burnable, Mintabble, Ownable, Pausable, with Locking ability per user. 
  */
-contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable, Locked, DateTime {
+contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, Locked, DateTime {
 
-
-    //using DateTime for uint256;
     uint8 public constant DECIMALS = 18;
     uint256 public constant INITIAL_SUPPLY = 250000000 * (10 ** uint256(DECIMALS));   
     uint256 public constant ONE_YEAR_SUPPLY = 12500000 * (10 ** uint256(DECIMALS));   
@@ -896,18 +877,18 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable
      * @dev Constructor that gives msg.sender all of existing tokens.
      */
     constructor () public ERC20Detailed("Auditchain", "AUDT", DECIMALS)  {      
-        mint(msg.sender, INITIAL_SUPPLY + ONE_YEAR_SUPPLY);     
-       mintedYears[getYear(now)] = true;
+        _mint(msg.sender, INITIAL_SUPPLY + ONE_YEAR_SUPPLY);     
+        mintedYears[getYear(now)] = true;
     }
      
      /// @dev Function to mint tokens
      /// @return A boolean that indicates if the operation was successful.
-    function mint() public returns (bool) {
+    function mint() public onlyMinter returns (bool) {
 
         require(mintAgent != address(0), "Mint agent address can't be 0");
         require (!mintedYears[getYear(now)], "Tokens have been already minted for this year.");
 
-        mint(mintAgent, ONE_YEAR_SUPPLY);
+        _mint(mintAgent, ONE_YEAR_SUPPLY);
         mintedYears[getYear(now)] = true;
 
         return true;

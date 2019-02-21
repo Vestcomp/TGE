@@ -4,7 +4,7 @@ import "../../../openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 import "../../../openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 import "../../../openzeppelin-solidity/contracts/token/ERC20/ERC20Burnable.sol";
 import "../../../openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "../../../openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
+import "../../../openzeppelin-solidity/contracts/access/roles/MinterRole.sol";
 import "./MigrationAgent.sol";
 import "./DateTime.sol";
 import "./Locked.sol";
@@ -14,7 +14,7 @@ import "./Locked.sol";
  * @title Token
  * @dev Burnable, Mintabble, Ownable, Pausable, with Locking ability per user. 
  */
-contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable, Locked, DateTime {
+contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, Locked, DateTime {
 
     uint8 public constant DECIMALS = 18;
     uint256 public constant INITIAL_SUPPLY = 250000000 * (10 ** uint256(DECIMALS));   
@@ -41,18 +41,18 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, ERC20Mintable
      * @dev Constructor that gives msg.sender all of existing tokens.
      */
     constructor () public ERC20Detailed("Auditchain", "AUDT", DECIMALS)  {      
-        mint(msg.sender, INITIAL_SUPPLY + ONE_YEAR_SUPPLY);     
+        _mint(msg.sender, INITIAL_SUPPLY + ONE_YEAR_SUPPLY);     
         mintedYears[getYear(now)] = true;
     }
      
      /// @dev Function to mint tokens
      /// @return A boolean that indicates if the operation was successful.
-    function mint() public returns (bool) {
+    function mint() public onlyMinter returns (bool) {
 
         require(mintAgent != address(0), "Mint agent address can't be 0");
         require (!mintedYears[getYear(now)], "Tokens have been already minted for this year.");
 
-        mint(mintAgent, ONE_YEAR_SUPPLY);
+        _mint(mintAgent, ONE_YEAR_SUPPLY);
         mintedYears[getYear(now)] = true;
 
         return true;

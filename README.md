@@ -20,4 +20,8 @@
 
 **Initial Supply**
 * 250,000,000 + 12,500,000
+
+**Exemple of verified contract can be seen on ropsten testnet**
+
+https://ropsten.etherscan.io/address/0x2b678a9b0211acc327a0f1c623cf6431f6fbcc84#code
   
