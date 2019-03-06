@@ -75,18 +75,19 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         emit MintAgentSet(_mintAgent);
     }
 
-    /// @notice Migrate tokens to the new token contract.
-    /// @param _value The amount of token to be migrated
-    function migrate(uint256 _value) external whenNotPaused() {         
+    /// @notice Migrate tokens to the new token contract.    
+    function migrate() external whenNotPaused() {         
 
+        uint value = balanceOf(msg.sender);
         require(migrationAgent != address(0), "Enter migration agent address");                
-        require(_value > 0, "Amount of tokens is required");
-        require(_value <= balanceOf(msg.sender), "You entered more tokens than available");
+        require(value > 0, "Amount of tokens is required");       
        
+        _addLock(msg.sender);
         burn(balanceOf(msg.sender));
-        totalMigrated += _value;
-        MigrationAgent(migrationAgent).migrateFrom(msg.sender, _value);
-        emit Migrate(msg.sender, migrationAgent, _value);
+        totalMigrated += value;
+        MigrationAgent(migrationAgent).migrateFrom(msg.sender, value);
+        _removeLock(msg.sender);
+        emit Migrate(msg.sender, migrationAgent, value);
     }
 
     /// @notice Set address of migration target contract and enable migration process

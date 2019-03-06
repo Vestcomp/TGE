@@ -79,7 +79,7 @@ contract("ERC20 Auditchain Token", (accounts) => {
 
             await token.setMigrationAgent(migrationAgent.address);
 
-            let result = await token.migrate(transferFunds, {
+            let result = await token.migrate( {
                 from: holder1
             })
 
@@ -94,31 +94,12 @@ contract("ERC20 Auditchain Token", (accounts) => {
         })
 
 
-        it('MigrationAgent: Should fail migrating more tokens than available of holder1. ', async () => {
-
-            let migrationAgent = await MIGRATION_AGENT.new({
-                from: owner
-            });
-
-            await token.setMigrationAgent(migrationAgent.address);
-
-            try {
-
-                 await token.migrate(transferFunds + 1, {
-                    from: holder1
-                })
-
-            } catch (error) {
-                ensureException(error);
-            }
-
-        })
 
         it('MigrationAgent: Should fail migrating because Migration Agent is not configured. ', async () => {
 
             try {
 
-                 await token.migrate(transferFunds , {
+                 await token.migrate( {
                     from: holder1
                 })
 
@@ -954,13 +935,13 @@ contract("ERC20 Auditchain Token", (accounts) => {
 
             await token.setMigrationAgent(migrationAgent.address);
 
-            let result = await token.migrate(transferFunds, {
+            let result = await token.migrate({
                 from: holder1
             })
 
-            assert.lengthOf(result.logs, 2);
+            assert.lengthOf(result.logs, 4);
 
-            let event1 = result.logs[1];
+            let event1 = result.logs[3];
             assert.equal(event1.event, 'Migrate');
             assert.equal(event1.args.from, holder1);
             assert.equal(event1.args.to, migrationAgent.address);
