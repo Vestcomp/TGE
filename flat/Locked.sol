@@ -103,13 +103,26 @@ contract Locked is Ownable {
     /// @dev add user to lock
     /// @param _user to lock
     function addLock (address _user) public onlyOwner {
-        lockedList[_user] = true;
-        emit AddedLock(_user);
+        _addLock(_user);
     }
 
     /// @dev unlock user
     /// @param _user - user to unlock
     function removeLock (address _user) public onlyOwner {
+        _removeLock(_user);
+    }
+
+
+    /// @dev add user to lock for internal needs
+    /// @param _user to lock
+    function _addLock(address _user) internal {
+        lockedList[_user] = true;
+        emit AddedLock(_user);
+    }
+
+    /// @dev unlock user for internal needs
+    /// @param _user - user to unlock
+    function _removeLock (address _user) internal {
         lockedList[_user] = false;
         emit RemovedLock(_user);
     }

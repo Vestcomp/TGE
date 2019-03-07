@@ -616,13 +616,26 @@ contract Locked is Ownable {
     /// @dev add user to lock
     /// @param _user to lock
     function addLock (address _user) public onlyOwner {
-        lockedList[_user] = true;
-        emit AddedLock(_user);
+        _addLock(_user);
     }
 
     /// @dev unlock user
     /// @param _user - user to unlock
     function removeLock (address _user) public onlyOwner {
+        _removeLock(_user);
+    }
+
+
+    /// @dev add user to lock for internal needs
+    /// @param _user to lock
+    function _addLock(address _user) internal {
+        lockedList[_user] = true;
+        emit AddedLock(_user);
+    }
+
+    /// @dev unlock user for internal needs
+    /// @param _user - user to unlock
+    function _removeLock (address _user) internal {
         lockedList[_user] = false;
         emit RemovedLock(_user);
     }
@@ -643,7 +656,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
     address public mintAgent;    
 
     uint16 constant ORIGIN_YEAR = 1970;
-    uint constant YEAR_IN_SECONDS = 31622400;
+    uint constant YEAR_IN_SECONDS = 31536000;
 
     mapping (uint => bool) public mintedYears;
 
@@ -657,7 +670,6 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         require(_self != address(this), "You are trying to send tokens to token contract");
         _;
     }
-
     
     /// @dev Constructor that gives msg.sender all of existing tokens and initiates token.  
     constructor () public ERC20Detailed("Auditchain", "AUDT", DECIMALS)  {      
@@ -696,18 +708,19 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         emit MintAgentSet(_mintAgent);
     }
 
-    /// @notice Migrate tokens to the new token contract.
-    /// @param _value The amount of token to be migrated
-    function migrate(uint256 _value) external whenNotPaused() {         
+    /// @notice Migrate tokens to the new token contract.    
+    function migrate() external whenNotPaused() {         
 
+        uint value = balanceOf(msg.sender);
         require(migrationAgent != address(0), "Enter migration agent address");                
-        require(_value > 0, "Amount of tokens is required");
-        require(_value <= balanceOf(msg.sender), "You entered more tokens than available");
+        require(value > 0, "Amount of tokens is required");       
        
+        _addLock(msg.sender);
         burn(balanceOf(msg.sender));
-        totalMigrated += _value;
-        MigrationAgent(migrationAgent).migrateFrom(msg.sender, _value);
-        emit Migrate(msg.sender, migrationAgent, _value);
+        totalMigrated += value;
+        MigrationAgent(migrationAgent).migrateFrom(msg.sender, value);
+        _removeLock(msg.sender);
+        emit Migrate(msg.sender, migrationAgent, value);
     }
 
     /// @notice Set address of migration target contract and enable migration process
@@ -719,7 +732,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         emit MigrationAgentSet(_agent);
     }
 
-    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    /// @notice Overwrite parent implementation to add locked verification and notSelf modifiers
     function transfer(address to, uint256 value) public 
                                                     isNotLocked(msg.sender, to) 
                                                     notSelf(to) 
@@ -727,7 +740,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         return super.transfer(to, value);
     }
 
-    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    /// @notice Overwrite parent implementation to add locked verification and notSelf modifiers
     function transferFrom(address from, address to, uint256 value) public 
                                                                     isNotLocked(from, to) 
                                                                     notSelf(to) 
@@ -735,7 +748,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         return super.transferFrom(from, to, value);
     }
 
-    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    /// @notice Overwrite parent implementation to add locked verification and notSelf modifiers
     function approve(address spender, uint256 value) public 
                                                         isNotLocked(msg.sender, spender) 
                                                         notSelf(spender) 
@@ -743,7 +756,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         return super.approve(spender, value);
     }
 
-    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    /// @notice Overwrite parent implementation to add locked verification and notSelf modifiers
     function increaseAllowance(address spender, uint addedValue) public 
                                                                 isNotLocked(msg.sender, spender) 
                                                                 notSelf(spender) 
@@ -751,7 +764,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
         return super.increaseAllowance(spender, addedValue);
     }
 
-    /// @notice Overwrite parent implementation to add blacklisted and notSelf modifiers
+    /// @notice Overwrite parent implementation to add locked verification and notSelf modifiers
     function decreaseAllowance(address spender, uint subtractedValue) public 
                                                                         isNotLocked(msg.sender, spender) 
                                                                         notSelf(spender) 

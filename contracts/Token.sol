@@ -23,7 +23,7 @@ contract Token is Pausable, ERC20Detailed, Ownable, ERC20Burnable, MinterRole, L
     address public mintAgent;    
 
     uint16 constant ORIGIN_YEAR = 1970;
-    uint constant YEAR_IN_SECONDS = 31622400;
+    uint constant YEAR_IN_SECONDS = 31536000;
 
     mapping (uint => bool) public mintedYears;
 
