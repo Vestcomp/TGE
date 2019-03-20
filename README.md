@@ -21,6 +21,8 @@
 **Initial Supply**
 * 250,000,000 + 12,500,000
 
+Contract allows on minting of 12,500,000 additional tokens once a year indefinitely in subsequent years without specific date.
+
 **Example of verified contract can be seen on ropsten testnet**
 
 https://ropsten.etherscan.io/address/0x2077b2e94fbb0b408df4b403f74ea954a7a935ee
